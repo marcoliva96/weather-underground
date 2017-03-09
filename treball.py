@@ -74,20 +74,19 @@ def print_almanac(useful_data):
     print "(Highest ever", useful_data["max"]["record"] + ")"
     print "High average", useful_data["max"]["avg"]
     print "Low average", useful_data["min"]["avg"]
-    print "(Lowest ever", useful_data["min"]["record"] + ")"
+    print "(Lowest ever", useful_data["min"]["record"] + ")" + '\n'
 
 
 def print_hourly(useful_data):
     """Prints saved data as a dict"""
-    #
-    for data in useful_data:
-        print location + ', ' + useful_data["location"]
-        print "Temperature: " + useful_data["temp"] + \
+    for hourly_data in useful_data:
+        print location + ', ' + hourly_data["location"]
+        print "Temperature: " + hourly_data["temp"] + \
             " (ºC)".decode("utf-8")
-        print "Condition: " + useful_data["condition"]
-        print "Wind speed: " + useful_data["wind"] + " (Km/h)"
-        print "Humidity: " + useful_data["humidity"] + " (%)"
-        print "Pressure: " + useful_data["pressure"] + " (hPa)" + '\n'
+        print "Condition: " + hourly_data["condition"]
+        print "Wind speed: " + hourly_data["wind"] + " (Km/h)"
+        print "Humidity: " + hourly_data["humidity"] + " (%)"
+        print "Pressure: " + hourly_data["pressure"] + " (hPa)" + '\n'
 
 
 if __name__ == "__main__":
@@ -101,4 +100,4 @@ if __name__ == "__main__":
 
     weatherclient = WeatherClient(api_key)
 print_almanac(weatherclient.almanac(location))
-print weatherclient.hourly(location)
+print_hourly(weatherclient.hourly(location))
