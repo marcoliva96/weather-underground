@@ -13,7 +13,8 @@ response_format = '.json'
 
 
 class WeatherClient(object):
-    """docstring for WeatherClient."""
+    """Access wunderground and collects data via API"""
+
     url_base = "http://api.wunderground.com/api/"
     url_services = {
         "almanac": "/almanac/q/CA/",
@@ -21,12 +22,11 @@ class WeatherClient(object):
     }
 
     def __init__(self, api_key):
-        """Inicialitzar la clau."""
         super(WeatherClient, self).__init__()
         self.api_key = api_key
 
     def requestData(self, url_service_name):
-        """Baixar-se la web."""
+        """Downloads web data using requests."""
         url = self.url_base + self.api_key + \
             self.url_services[url_service_name] + \
             location + response_format
@@ -34,38 +34,51 @@ class WeatherClient(object):
         return requests.get(url).text
 
     def hourly(self, location):
+        """Saves 'hourly' data."""
         data = self.requestData("hourly")
 
         jsondata = json.loads(data)["hourly_forecast"]
         for date in jsondata:
-            print date["FCTTIME"]["pretty"]
-            print "  Temperature-> " + date["temp"]["metric"] + \
-                " ºC".decode("utf-8")
-            print "  Condition-> " + date["condition"]
-            print "  Windspeed-> " + date["wspd"]["metric"] + " Km/h"
-            print "  Humidity-> " + date["humidity"] + " %"
-            print "  Pressure-> " + date["mslp"]["metric"] + " hPa"
+            print location + ', ' + date["FCTTIME"]["pretty"]
+            print "Temperature: " + date["temp"]["metric"] + \
+                " (ºC)".decode("utf-8")
+            print "Condition: " + date["condition"]
+            print "Wind speed: " + date["wspd"]["metric"] + " (Km/h)"
+            print "Humidity: " + date["humidity"] + " (%)"
+            print "Pressure: " + date["mslp"]["metric"] + " (hPa)" + '\n'
 
         return jsondata
 
     def almanac(self, location):
-        """Baixar-se la informació de 'almanac'."""
+        """Saves 'almanac' data."""
         data = self.requestData("almanac")
 
-        # llegir-la
         jsondata = json.loads(data)
-        almanac = jsondata["almanac"]
+        almanac = jsondata["almanac"]  # all the data
 
-        resultats = {}
-        resultats["maximes"] = {}
-        resultats["minimes"] = {}
-        resultats["maximes"]["normal"] = almanac["temp_high"]["normal"]["C"]
-        resultats["maximes"]["record"] = almanac["temp_high"]["record"]["C"]
-        resultats["minimes"]["normal"] = almanac["temp_low"]["normal"]["C"]
-        resultats["minimes"]["record"] = almanac["temp_low"]["record"]["C"]
+        useful_data = {}  # just useful data for us
+        useful_data["max"] = {}
+        useful_data["min"] = {}
+        useful_data["max"]["avg"] = almanac["temp_high"]["avg"]["C"]
+        useful_data["ma"]["record"] = almanac["temp_high"]["record"]["C"]
+        useful_data["min"]["avg"] = almanac["temp_low"]["avg"]["C"]
+        useful_data["min"]["record"] = almanac["temp_low"]["record"]["C"]
 
-        # retornar resultats
-        return resultats
+        print_almanac(useful_data)
+
+
+def print_almanac(useful_data):
+    """Prints saved data as a dict"""
+    print "High Temperatures:"
+    print "Average on this date", useful_data["high"]["normal"]
+    print "Record on this date %s (%s) " % \
+        (useful_data["high"]["record"],
+            useful_data["high"]["year"])
+    print "Low Temperatures:"
+    print "Average on this date", useful_data["low"]["normal"]
+    print "Record on this date %s (%s) " % \
+        (useful_data["low"]["record"],
+            useful_data["low"]["year"])
 
 
 if __name__ == "__main__":
@@ -77,10 +90,5 @@ if __name__ == "__main__":
             api_key = key_file.read().replace('\n', '')
             print "Must provide api key in code or cmdline arg"
 
-    print api_key
-
-    wc = WeatherClient(api_key)
-    # result1 = wc.almanac("Lleida")
-    result2 = wc.hourly("Lleida")
-    # print result1
-# print result2
+    weatherclient = WeatherClient(api_key)
+#  print_almanac(weatherclient.almanac(location))
