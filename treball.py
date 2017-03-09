@@ -59,26 +59,23 @@ class WeatherClient(object):
         useful_data = {}  # just useful data for us
         useful_data["max"] = {}
         useful_data["min"] = {}
-        useful_data["max"]["avg"] = almanac["temp_high"]["avg"]["C"]
-        useful_data["ma"]["record"] = almanac["temp_high"]["record"]["C"]
-        useful_data["min"]["avg"] = almanac["temp_low"]["avg"]["C"]
+        useful_data["max"]["avg"] = almanac["temp_high"]["normal"]["C"]
+        useful_data["max"]["record"] = almanac["temp_high"]["record"]["C"]
+        useful_data["min"]["avg"] = almanac["temp_low"]["normal"]["C"]
         useful_data["min"]["record"] = almanac["temp_low"]["record"]["C"]
 
-        print_almanac(useful_data)
+        return useful_data
 
 
 def print_almanac(useful_data):
     """Prints saved data as a dict"""
-    print "High Temperatures:"
-    print "Average on this date", useful_data["high"]["normal"]
-    print "Record on this date %s (%s) " % \
-        (useful_data["high"]["record"],
-            useful_data["high"]["year"])
-    print "Low Temperatures:"
-    print "Average on this date", useful_data["low"]["normal"]
-    print "Record on this date %s (%s) " % \
-        (useful_data["low"]["record"],
-            useful_data["low"]["year"])
+    #  {'max': {'record': u'21', 'avg': u'16'},
+    #  'min': {'record': u'-1', 'avg': u'6'}}
+    print "Past years temperature data on this date:"
+    print "(Highest ever", useful_data["max"]["record"] + ")"
+    print "High average", useful_data["max"]["avg"]
+    print "Low average", useful_data["min"]["avg"]
+    print "(Lowest ever", useful_data["min"]["record"] + ")"
 
 
 if __name__ == "__main__":
@@ -91,4 +88,4 @@ if __name__ == "__main__":
             print "Must provide api key in code or cmdline arg"
 
     weatherclient = WeatherClient(api_key)
-#  print_almanac(weatherclient.almanac(location))
+print_almanac(weatherclient.almanac(location))
