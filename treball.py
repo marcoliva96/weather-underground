@@ -98,23 +98,33 @@ def print_hourly(useful_data):
 def long_term(almanac, hourly):
     """Prints morning clothing recommendation"""
     great, nice, bad, horrible, wind_alert = False, False, False, False, False
-    info = ""
     now = 0
-    limit = 14  # hours of prediction
+    limit = 10  # hours of prediction
     for hour in hourly:
         if now > 3 and now < limit:  # 3 hours later starts the prediction
-            if int(hour["wind"]) > 50:
+            if int(hour["wind"]) > 40:
                 wind_alert = True
             if (int(almanac["max"]["record"]) - int(hour["temp"]) < 3):
                 great = True
-                info = hour["location"]
             if (int(hour["temp"]) - int(almanac["min"]["record"]) < 3):
                 horrible = True
-            if (int(almanac["max"]["avg"]) - int(hour["temp"]) < 3):
+            if (int(almanac["max"]["avg"]) - int(hour["temp"]) <= 1):
                 nice = True
-            if (int(hour["temp"]) - int(almanac["min"]["avg"]) < 3):
+            if (int(hour["temp"]) - int(almanac["min"]["avg"]) <= 1):
                 bad = True
-        now += 1  # next provided data will refer 1 hour after
+        now += 1  # next provided data --> 1 hour later
+
+    if wind_alert is True:
+        print "Care! Wind is gonna reach at least 40 km/h (assuming a " + \
+            + limit + "-hour prediction)"
+    if great is True:
+        print "Today we're going to enjoy such an uncommon great day!"
+    if horrible is True:
+        print "Warning!! Temperatures are going to reach minimums!!"
+    if nice is True:
+        print "There will be nice temperatures, keep it in mind when clothing"
+    if bad is True:
+        print "Watch out for low temperatures, keep it in mind when clothing"
 
 
 if __name__ == "__main__":
@@ -133,5 +143,5 @@ print_almanac(almanac)
 hourly = weatherclient.hourly(location)
 print_hourly(hourly)
 date = datetime.datetime.now()
-if date.hour < 21:  # he de posarhi un 16
+if date.hour < 16:  # long_term prediction can't be used after midday
     long_term(almanac, hourly)
