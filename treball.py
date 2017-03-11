@@ -5,6 +5,7 @@
 import sys
 import json
 import requests
+import datetime
 
 api_key = None
 
@@ -38,7 +39,7 @@ class WeatherClient(object):
         data = self.requestData("hourly")
         jsondata = json.loads(data)["hourly_forecast"]  # all the data
 
-        useful_data = []  # just useful data for us
+        useful_data = []  # useful data for us
         hourly_data = {}
         for hour in jsondata:
                 hourly_data["location"] = hour["FCTTIME"]["pretty"]
@@ -48,6 +49,7 @@ class WeatherClient(object):
                 hourly_data["humidity"] = hour["humidity"]
                 hourly_data["pressure"] = hour["mslp"]["metric"]
                 useful_data.append(hourly_data.copy())
+
         return useful_data
 
     def almanac(self, location):
@@ -79,14 +81,40 @@ def print_almanac(useful_data):
 
 def print_hourly(useful_data):
     """Prints saved data as a dict"""
+    show = 0
+    print "Short prediction:"
     for hourly_data in useful_data:
-        print location + ', ' + hourly_data["location"]
-        print "Temperature: " + hourly_data["temp"] + \
-            " (ºC)".decode("utf-8")
-        print "Condition: " + hourly_data["condition"]
-        print "Wind speed: " + hourly_data["wind"] + " (Km/h)"
-        print "Humidity: " + hourly_data["humidity"] + " (%)"
-        print "Pressure: " + hourly_data["pressure"] + " (hPa)" + '\n'
+        if show < 4:  # number of hours of prediction
+            print location + ', ' + hourly_data["location"]
+            print "Temperature: " + hourly_data["temp"] + \
+                " (ºC)".decode("utf-8")
+            print "Condition: " + hourly_data["condition"]
+            print "Wind speed: " + hourly_data["wind"] + " (Km/h)"
+            print "Humidity: " + hourly_data["humidity"] + " (%)"
+            print "Pressure: " + hourly_data["pressure"] + " (hPa)" + '\n'
+            show += 1
+
+
+def long_term(almanac, hourly):
+    """Prints morning clothing recommendation"""
+    great, nice, bad, horrible, wind_alert = False, False, False, False, False
+    info = ""
+    now = 0
+    limit = 14  # hours of prediction
+    for hour in hourly:
+        if now > 3 and now < limit:  # 3 hours later starts the prediction
+            if int(hour["wind"]) > 50:
+                wind_alert = True
+            if (int(almanac["max"]["record"]) - int(hour["temp"]) < 3):
+                great = True
+                info = hour["location"]
+            if (int(hour["temp"]) - int(almanac["min"]["record"]) < 3):
+                horrible = True
+            if (int(almanac["max"]["avg"]) - int(hour["temp"]) < 3):
+                nice = True
+            if (int(hour["temp"]) - int(almanac["min"]["avg"]) < 3):
+                bad = True
+        now += 1  # next provided data will refer 1 hour after
 
 
 if __name__ == "__main__":
@@ -99,5 +127,11 @@ if __name__ == "__main__":
             print "Must provide api key in code or cmdline arg"
 
     weatherclient = WeatherClient(api_key)
-print_almanac(weatherclient.almanac(location))
-print_hourly(weatherclient.hourly(location))
+
+almanac = weatherclient.almanac(location)
+print_almanac(almanac)
+hourly = weatherclient.hourly(location)
+print_hourly(hourly)
+date = datetime.datetime.now()
+if date.hour < 21:  # he de posarhi un 16
+    long_term(almanac, hourly)
