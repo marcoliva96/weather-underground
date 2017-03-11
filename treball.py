@@ -82,7 +82,7 @@ def print_almanac(useful_data):
 def print_hourly(useful_data):
     """Prints saved data as a dict"""
     show = 0
-    print "Short prediction:"
+    print "Short term prediction:"
     for hourly_data in useful_data:
         if show < 4:  # number of hours of prediction
             print location + ', ' + hourly_data["location"]
@@ -114,6 +114,8 @@ def long_term(almanac, hourly):
                 bad = True
         now += 1  # next provided data --> 1 hour later
 
+    if wind_alert or great or horrible or nice or bad is True:
+        print "Long term prediction:"
     if wind_alert is True:
         print "Care! Wind is gonna reach at least 40 km/h (assuming a " + \
             + limit + "-hour prediction)"
