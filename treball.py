@@ -80,7 +80,7 @@ def print_almanac(useful_data):
 
 
 def print_hourly(useful_data):
-    """Prints saved data as a dict"""
+    """Prints short term prediction"""
     show = 0
     print "Short term prediction:"
     for hourly_data in useful_data:
@@ -96,7 +96,7 @@ def print_hourly(useful_data):
 
 
 def long_term(almanac, hourly):
-    """Prints morning clothing recommendation"""
+    """Prints long term prediction"""
     great, nice, bad, horrible, wind_alert = False, False, False, False, False
     now = 0
     limit = 10  # hours of prediction
